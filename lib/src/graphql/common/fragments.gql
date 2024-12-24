@@ -1,0 +1,20 @@
+fragment PageInfo on PageInfo {
+  hasNextPage
+  nextCursor
+}
+
+fragment AuthInfo on AuthInfo {
+  verified
+  token
+  v_session
+}
+
+fragment PublicUser on User {
+  id
+  name
+  avatar
+}
+
+fragment MeAdmin on Admin {
+  id
+}

@@ -1,0 +1,23 @@
+query Me {
+  auth {
+    me {
+      user {
+        ...PublicUser
+      }
+      admin {
+        ...MeAdmin
+      }
+    }
+  }
+}
+
+query GetProvider($contact: Contact!) {
+  auth {
+    check_provider(contact: $contact) {
+      user {
+        ...PublicUser
+      }
+      providers
+    }
+  }
+}

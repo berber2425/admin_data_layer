@@ -1,0 +1,46 @@
+mutation SetDevice($input: SetDeviceIdInput!) {
+  public {
+    set_device_id(input: $input)
+  }
+}
+
+mutation SetDeviceToken($id: ID!, $input: SetFcmTokenInput!) {
+  public {
+    set_fcm_token(id: $id, input: $input)
+  }
+}
+
+mutation SetForwardedFrom($id: ID!, $input: SetForwardedFromInput!) {
+  public {
+    set_forwarded_from(id: $id, input: $input)
+  }
+}
+
+mutation login_email($input: LoginEmailRequest!) {
+  auth {
+    login_email(input: $input) {
+      user {
+        ...PublicUser
+      }
+      auth {
+        ...AuthInfo
+      }
+      admin {
+        ...MeAdmin
+      }
+    }
+  }
+}
+
+mutation register_email($input: RegisterEmailRequest!) {
+  auth {
+    register_email(input: $input) {
+      user {
+        ...PublicUser
+      }
+      auth {
+        ...AuthInfo
+      }
+    }
+  }
+}

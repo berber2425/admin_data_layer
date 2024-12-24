@@ -1,0 +1,892 @@
+schema {
+  query: Query
+  mutation: Mutation
+}
+"Date custom scalar type"
+scalar DateTime
+"JSON custom scalar type"
+scalar JSON
+"Any custom scalar type"
+scalar Any
+"Email custom scalar type"
+scalar Email
+"PhoneNumber custom scalar type"
+scalar PhoneNumber
+"Contact custom scalar type"
+scalar Contact
+"VerifyCode custom scalar type"
+scalar VerifyCode
+"Base64Data custom scalar type"
+scalar Base64Data
+"Avatar custom scalar type"
+scalar Avatar
+"Hsl custom scalar type"
+scalar Hsl
+type AdminQuery {
+  hello: String!
+}
+type AdminMutation {
+  hello: String!
+}
+type VerifyForgotPasswordResponse {
+  token: String!
+}
+type AuthInfo {
+  token: String
+  verified: Boolean!
+  v_session: ID
+}
+type AuthResponse {
+  user: User!
+  auth: AuthInfo!
+  admin: Admin
+}
+type MeResponse {
+  user: User!
+  admin: Admin
+}
+type AuthQuery {
+  me: MeResponse!
+  check_provider(contact: Contact!): ProviderResponse!
+}
+type ProviderResponse {
+  user: User
+  providers: [Providers!]!
+}
+type AuthMutation {
+  login_email(input: LoginEmailRequest!): AuthResponse!
+  login_phone(input: LoginPhoneRequest!): AuthResponse!
+  login_google(input: LoginGoogleRequest!): AuthResponse!
+  login_apple(input: LoginAppleRequest!): AuthResponse!
+  logout: Boolean!
+  reset_password(input: ResetPasswordRequest!): Boolean!
+  verify_forgot_password(input: VerifyForgotPasswordRequest!): VerifyForgotPasswordResponse!
+  change_password(input: ChangePasswordRequest!): AuthResponse!
+  resend_verify_email(input: ResendVerifyEmailRequest!): Boolean!
+  verify_email(input: VerifyEmailRequest!): AuthResponse!
+  register_email(input: RegisterEmailRequest!): AuthResponse!
+  register_phone(input: RegisterPhoneRequest!): AuthResponse!
+}
+type TempMembership implements Node {
+  id: ID!
+  status: MemberStatus!
+  role: Role!
+  branch: Branch
+  organization: Organization!
+}
+type TempMembershipConnection implements Connection {
+  pageInfo: PageInfo!
+  items: [TempMembership!]!
+  groups: GroupInfo
+}
+type OrgQuery {
+  us: Organization!
+  my_memberships(pagination: PaginationInput): TempMembershipConnection!
+}
+type OrgMutation {
+  createOrg(input: CreateOrgInput!): Organization!
+}
+type OrganizationMutation {
+  updateOrg(input: UpdateOrgInput!): Organization!
+  deleteOrg: Organization!
+}
+type ServiceMutation {
+  createService(input: CreateServiceInput!): Service!
+  updateService(input: UpdateServiceInput!): Service!
+}
+type SupportedLanguage {
+  name: String!
+  version: Int!
+}
+type LanguageDocument {
+  language: String!
+  version: Int!
+  translations: JSON!
+}
+type TestObject implements Node {
+  id: ID!
+  value: Int!
+  "this is integer"
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  connectedTestObjects(pagination: PaginationInput): ConnectedTestObjectConnection!
+}
+type ConnectedTestObject implements Node {
+  id: ID!
+  testObject: TestObject!
+  testObject_ID: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+type ConnectedTestObjectConnection {
+  pageInfo: PageInfo!
+  items: [ConnectedTestObject!]!
+}
+type TestObjectConnection implements Connection {
+  pageInfo: PageInfo!
+  items: [TestObject!]!
+  groups: GroupInfo
+}
+type PublicQuery {
+  user(id: ID!): User!
+  service(id: ID!): Service!
+  servicer(id: ID!): Servicer!
+  branch(id: ID!): Branch!
+  service_type(id: ID!): ServiceType!
+  organization(id: ID!): Organization!
+  supported_languages: [SupportedLanguage!]!
+  language_document(language: String!): LanguageDocument!
+  test_objects(pagination: PaginationInput): TestObjectConnection!
+  test_objects_grouped(pagination: PaginationInput): TestObjectConnection!
+}
+type PublicMutation {
+  add_feedback(input: FeedbackRequest!): Boolean!
+  add_test_object(input: TestObjectInput!): TestObject!
+  update_test_object(id: ID!, input: TestObjectInput!): TestObject!
+  delete_test_object(id: ID!): Boolean!
+  add_connected_test_object(input: ConnectedTestObjectInput!): ConnectedTestObject!
+  delete_connected_test_object(id: ID!): Boolean!
+  set_device_id(input: SetDeviceIdInput!): String!
+  set_forwarded_from(id: ID!, input: SetForwardedFromInput!): Boolean!
+  set_fcm_token(id: ID!, input: SetFcmTokenInput!): Boolean!
+}
+type Query {
+  admin: AdminQuery!
+  auth: AuthQuery!
+  org: OrgQuery!
+  public: PublicQuery!
+  user: UserQuery!
+}
+type Mutation {
+  admin: AdminMutation!
+  auth: AuthMutation!
+  org: OrgMutation!
+  user: UserMutation!
+  public: PublicMutation!
+}
+type PageInfo {
+  hasNextPage: Boolean!
+  nextCursor: String
+}
+type GroupKey {
+  value: Any!
+  count: Int!
+}
+type Group {
+  key: String!
+  values: [GroupKey!]!
+}
+type GroupInfo {
+  totalCount: Int!
+  groups: [Group!]!
+}
+type User implements Node {
+  id: ID!
+  name: String!
+  avatar: Avatar!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  phone: PhoneNumber
+  email: Email
+  organization: Organization
+  organization_ID: ID
+  createdBy_ID: ID
+  createdBy: Member
+  "@resolver_required"
+  authMethods(pagination: PaginationInput): AuthMethodConnection!
+  members(pagination: PaginationInput): MemberConnection!
+  reviews(pagination: PaginationInput): ReviewConnection!
+}
+type UserConnection implements Connection {
+  pageInfo: PageInfo!
+  items: [User!]!
+  groups: GroupInfo
+}
+type Address {
+  country: String!
+  city: String!
+  region: String!
+  line1: String!
+  line2: String
+  postal_code: String
+}
+type Location {
+  latitude: Float!
+  longitude: Float!
+}
+type Feedback {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  status: FeedbackStatus!
+  type: FeedbackType!
+  category: FeedbackCategory!
+  comment: String
+  images: [String!]
+  issuer: User
+  issuer_ID: ID
+  user: User
+  user_ID: ID
+  organization: Organization
+  organization_ID: ID
+  servicer: Servicer
+  servicer_ID: ID
+  review: Review
+  review_ID: ID
+  branch: Branch
+  branch_ID: ID
+  service: Service
+  service_ID: ID
+}
+type ProviderInfo {
+  id: ID!
+  name: String!
+  email: String!
+  avatar: String
+  token: String
+  refreshToken: String
+  expiresAt: DateTime
+}
+type AuthMethod implements Node {
+  id: ID!
+  provider: AuthProvider!
+  "@resolver_required"
+  user: User!
+  user_ID: ID!
+  info: ProviderInfo!
+  verified: Boolean!
+}
+type AuthMethodConnection implements Connection {
+  pageInfo: PageInfo!
+  items: [AuthMethod!]!
+  groups: GroupInfo
+}
+type AuthMethodEdge implements Edge {
+  cursor: String!
+  node: AuthMethod!
+}
+type AdminRole implements Node {
+  id: ID!
+  name: String!
+  description: String!
+  permissions: [String!]!
+}
+"Platform admin"
+type Admin implements Node {
+  id: ID!
+  user: User
+  user_ID: ID
+  email: String!
+  role: AdminRole!
+  role_ID: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+type AdminConnection implements Connection {
+  pageInfo: PageInfo!
+  items: [Admin!]!
+  groups: GroupInfo
+}
+type Member implements Node {
+  id: ID!
+  user: User
+  user_ID: ID
+  contact: Contact
+  status: MemberStatus!
+  role: Role!
+  role_ID: ID!
+  branch: Branch
+  branch_ID: ID
+  organization: Organization!
+  organization_ID: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+type MemberConnection implements Connection {
+  pageInfo: PageInfo!
+  items: [Member!]!
+  groups: GroupInfo
+}
+"""
+Service types globally pre-defined by the platform.
+Organizations cannot create or delete them.
+
+Service types are pre-defined because users can search & filter for them by name in own language.
+Translations are managed by the platform. That's why we can support multiple languages.
+
+ServiceType is a global entity. So it has no organizationId, duration, price, etc.
+
+Organizations can assign services to their servicers.
+"""
+type ServiceType implements Node {
+  id: ID!
+  name: String!
+  avatar: String!
+  booking_count(range: DateRangeInput, verified: Boolean): Int!
+  servicer_count: Int!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  createdBy: Admin!
+  createdBy_ID: ID!
+  updatedBy: Admin!
+  updatedBy_ID: ID!
+}
+type ServiceTypeConnection implements Connection {
+  pageInfo: PageInfo!
+  items: [ServiceType!]!
+  groups: GroupInfo
+}
+type ServiceTemplate implements Node {
+  id: ID!
+  name: String!
+  serviceType: ServiceType!
+  serviceType_ID: ID!
+  organization: Organization!
+  organization_ID: ID!
+  services(pagination: PaginationInput): ServiceConnection!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  duration: Int!
+  price: Float!
+}
+type ServiceTemplateConnection implements Connection {
+  pageInfo: PageInfo!
+  items: [ServiceTemplate!]!
+  groups: GroupInfo
+}
+type Service implements Node {
+  id: ID!
+  serviceType: ServiceType!
+  serviceType_ID: ID!
+  organization: Organization!
+  organization_ID: ID!
+  duration: Int!
+  price: Float!
+  servicer: Servicer!
+  servicer_ID: ID!
+  branch: Branch!
+  branch_ID: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+type ServiceConnection implements Connection {
+  pageInfo: PageInfo!
+  items: [Service!]!
+  groups: GroupInfo
+}
+type Servicer implements Node {
+  id: ID!
+  member: Member!
+  member_ID: ID!
+  branch: Branch!
+  branch_ID: ID!
+  organization: Organization!
+  organization_ID: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  services(pagination: PaginationInput): ServiceConnection!
+  availabilities(pagination: PaginationInput): AvailabilityConnection!
+  reviews(pagination: PaginationInput): ReviewConnection!
+}
+type ServicerConnection implements Connection {
+  pageInfo: PageInfo!
+  items: [Servicer!]!
+  groups: GroupInfo
+}
+type Availability implements Node {
+  id: ID!
+  start: DateTime!
+  end: DateTime!
+  duration: Int!
+  servicer: Servicer!
+  servicer_ID: ID!
+}
+type AvailabilityConnection implements Connection {
+  pageInfo: PageInfo!
+  items: [Availability!]!
+  groups: GroupInfo
+}
+type Role implements Node {
+  id: ID!
+  name: String!
+  permissions: [String!]!
+  organization: Organization!
+  organization_ID: ID!
+  members(pagination: PaginationInput): MemberConnection!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+type RoleConnection implements Connection {
+  pageInfo: PageInfo!
+  items: [Role!]!
+  groups: GroupInfo
+}
+type Organization implements Node {
+  id: ID!
+  name: String!
+  type: OrganizationType!
+  avatar: Avatar!
+  "@resolver_required"
+  members(pagination: PaginationInput): MemberConnection!
+  branches(pagination: PaginationInput): BranchConnection!
+  "@resolver_required"
+  servicers(pagination: PaginationInput): ServicerConnection!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  global_cancellation_policy: CancellationPolicy
+  global_cancellation_policy_ID: ID
+  cancellation_policies(pagination: PaginationInput): CancellationPolicyConnection!
+  reviews(pagination: PaginationInput): ReviewConnection!
+}
+type OrganizationConnection implements Connection {
+  pageInfo: PageInfo!
+  items: [Organization!]!
+  groups: GroupInfo
+}
+type ActiveTime {
+  start: Int!
+  end: Int!
+}
+type Branch implements Node {
+  id: ID!
+  name: String!
+  type: BranchType!
+  "@resolver_required"
+  organization: Organization!
+  organization_ID: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  address: Address!
+  location: Location!
+  active_times: [ActiveTime!]!
+  booking_buffer: Int!
+  booking_range: Int!
+  "@resolver_required"
+  servicers(pagination: PaginationInput): ServicerConnection!
+  "@resolver_required"
+  services(pagination: PaginationInput): ServiceConnection!
+  cancellation_policy: CancellationPolicy
+  reviews(pagination: PaginationInput): ReviewConnection!
+  featured_services: [MinimalService!]!
+}
+type BranchConnection implements Connection {
+  pageInfo: PageInfo!
+  items: [Branch!]!
+  groups: GroupInfo
+}
+type MinimalService {
+  id: ID!
+  name: String!
+  price: Float!
+  duration: Int!
+}
+type CancellationPolicyRange {
+  hours: Int!
+  cancellation_fee: Float!
+  can_change_date: Boolean!
+  can_modify_incremental: Boolean!
+  can_modify_decremental: Boolean!
+}
+type CancellationPolicy implements Node {
+  id: ID!
+  ranges: [CancellationPolicyRange!]!
+  organization: Organization!
+  organization_ID: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  branch: Branch
+  branch_ID: ID
+}
+type CancellationPolicyConnection implements Connection {
+  pageInfo: PageInfo!
+  items: [CancellationPolicy!]!
+  groups: GroupInfo
+}
+type Cancellation {
+  amount: Float!
+  currency: String!
+  reason: String!
+  cancellation_fee: Float!
+  cancelled_by: CancellationBy!
+  user: User
+  user_ID: ID!
+  booking: Booking!
+  booking_ID: ID!
+  servicer: Servicer!
+  servicer_ID: ID!
+  member: Member!
+  member_ID: ID!
+}
+type Booking implements Node {
+  id: ID!
+  start: DateTime!
+  end: DateTime!
+  services: [MinimalService!]!
+  status: BookingStatus!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  servicer: Servicer!
+  servicer_ID: ID!
+  branch: Branch!
+  branch_ID: ID!
+  organization: Organization!
+  organization_ID: ID!
+  payment: Payment
+  payment_ID: ID!
+  user: User
+  user_ID: ID!
+  refund: Refund
+  refund_ID: ID
+  review: Review
+  review_ID: ID
+  cancellation: Cancellation
+  cancellation_ID: ID
+}
+type BookingConnection implements Connection {
+  pageInfo: PageInfo!
+  items: [Booking!]!
+  groups: GroupInfo
+}
+type Refund implements Node {
+  id: ID!
+  amount: Float!
+  currency: String!
+  status: RefundStatus!
+  payment: Payment!
+  payment_ID: ID!
+}
+type Payment implements Node {
+  id: ID!
+  amount: Float!
+  currency: String!
+  status: PaymentStatus!
+  booking: Booking!
+  booking_ID: ID!
+  organization: Organization!
+  organization_ID: ID!
+  servicer: Servicer!
+  servicer_ID: ID!
+  branch: Branch!
+  branch_ID: ID!
+  user: User
+  user_ID: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  refund: Refund
+  refund_ID: ID
+}
+type PaymentConnection implements Connection {
+  pageInfo: PageInfo!
+  items: [Payment!]!
+  groups: GroupInfo
+}
+type ReviewMedia {
+  url: String!
+  type: ReviewMediaType!
+}
+type Review implements Node {
+  id: ID!
+  rating: Int!
+  comment: String!
+  media: [ReviewMedia!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+type ReviewConnection implements Connection {
+  pageInfo: PageInfo!
+  items: [Review!]!
+  groups: GroupInfo
+}
+type HomeResponse {
+  featured_organizations: [Organization!]!
+  featured_service_types: [ServiceType!]!
+  recent_organizations: [Organization!]!
+  recent_service_types: [ServiceType!]!
+  upcoming_bookings: [Booking!]!
+  recommend_to_review: [Booking!]!
+  nearby_organizations(location: LocationInput): [Organization!]!
+}
+type UserQuery {
+  home: HomeResponse!
+  booking(id: ID!): Booking!
+}
+type UserMutation {
+  update_profile(input: UpdateProfileRequest!): User!
+  make_booking(input: MakeBookingRequest!): Booking!
+  cancel_booking(id: ID!): Boolean!
+  review_booking(id: ID!, input: ReviewBookingRequest!): Boolean!
+  remove_review(id: ID!): Boolean!
+  add_favorite(id: ID!): Boolean!
+  remove_favorite(id: ID!): Boolean!
+  add_to_cart(id: ID!): Boolean!
+  remove_from_cart(id: ID!): Boolean!
+  clear_cart: Boolean!
+  checkout: Boolean!
+  request_refund(id: ID!): Boolean!
+}
+interface Node {
+  id: ID!
+}
+interface Connection {
+  pageInfo: PageInfo!
+  items: [Node!]!
+  groups: GroupInfo
+}
+interface Edge {
+  cursor: String!
+  node: Node!
+}
+enum Providers {
+  EMAIL
+  PHONE
+  GOOGLE
+  APPLE
+}
+enum CancellationPolicyTemplate {
+  DEFAULT
+  NO_REFUND
+  FLEXIBLE
+  STRICT
+}
+enum Domains {
+  user
+  org
+  admin
+  public
+  auth
+}
+enum FeedbackType {
+  FEEDBACK
+  COMPLAINT
+}
+enum FeedbackStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+enum FeedbackCategory {
+  SERVICE
+  SERVICER
+  ORGANIZATION
+  USER
+  REVIEW
+  OTHER
+}
+enum AuthProvider {
+  EMAIL
+  GOOGLE
+  APPLE
+}
+enum MemberStatus {
+  ACTIVE
+  PENDING
+  INACTIVE
+}
+enum ServicerStatus {
+  ACTIVE
+  INACTIVE
+}
+enum OrganizationType {
+  MULTI_BRANCH
+  SINGLE_BRANCH
+  FREELANCER
+}
+enum BranchType {
+  FRANCHISE
+  COMPANY_OWNED
+}
+enum CancellationBy {
+  SERVICER
+  USER
+}
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+enum RefundStatus {
+  PENDING
+  REFUNDED
+}
+enum PaymentStatus {
+  PENDING
+  PAID
+  CANCELLED
+  REFUNDED
+}
+enum ReviewMediaType {
+  IMAGE
+  VIDEO
+}
+input LoginEmailRequest {
+  email: Email!
+  password: String!
+}
+input LoginPhoneRequest {
+  phone: PhoneNumber!
+  password: String!
+}
+input LoginGoogleRequest {
+  code: String!
+}
+input LoginAppleRequest {
+  code: String!
+}
+input ResetPasswordRequest {
+  email: Email!
+}
+input VerifyForgotPasswordRequest {
+  email: Email!
+  code: VerifyCode!
+}
+input ChangePasswordRequest {
+  token: String!
+  newPassword: String!
+}
+input VerifyEmailRequest {
+  v_session: ID!
+  code: VerifyCode!
+}
+input RegisterEmailRequest {
+  name: String!
+  email: Email!
+  password: String!
+}
+input RegisterPhoneRequest {
+  name: String!
+  phone: PhoneNumber!
+  password: String!
+}
+input ResendVerifyEmailRequest {
+  email: Email!
+}
+input AddressInput {
+  country: String!
+  city: String!
+  region: String!
+  line1: String!
+  line2: String
+  postal_code: String
+}
+input MainBranchInput {
+  name: String!
+  address: AddressInput!
+}
+input CreateOrgInput {
+  "The name of the organization. If the organization is a company, it should be the company name. If the organization is an individual, it should be the individual's name."
+  name: String!
+  "The type of the organization."
+  type: OrganizationType!
+  hslAvatar: UploadingHsl
+  avatar: Upload
+  address: AddressInput!
+  mainBranch: MainBranchInput!
+  "The cancellation policy template to apply to the organization."
+  cp_template: CancellationPolicyTemplate!
+  "Whether to apply the cancellation policy template to all branches of the organization."
+  apply_cp_all_branches: Boolean
+  "The contact of the organization owner. If the request is made by an admin, this should be the email of the user creating the organization."
+  owner_contact: Contact
+}
+input UpdateOrgInput {
+  name: String
+}
+input CreateServiceInput {
+  type: ID!
+}
+input UpdateServiceInput {
+  id: ID!
+  name: String
+}
+input FeedbackRequest {
+  type: FeedbackType!
+  comment: String
+  images: [String!]
+}
+input TestObjectInput {
+  value: Int!
+}
+input ConnectedTestObjectInput {
+  testObject_ID: ID!
+}
+input SetDeviceIdInput {
+  fcm_token: String
+  apns_token: String
+  locales: String
+  ip: String
+  country: String
+  os: String
+  app_version: String
+  forwarded_from: ID
+}
+input SetForwardedFromInput {
+  forwarded_from: ID!
+}
+input SetFcmTokenInput {
+  fcm_token: String!
+  apns_token: String
+}
+input UploadingHsl {
+  hsl: Hsl!
+}
+input Upload {
+  mimeType: String!
+  encoding: String
+  filename: String
+  data: Base64Data!
+}
+input PaginationInput {
+  filter: JSON
+  sort: String
+  limit: Int = 50
+  cursor: String
+}
+input DateRangeInput {
+  start: DateTime
+  end: DateTime
+}
+input LocationInput {
+  latitude: Float!
+  longitude: Float!
+}
+input MakeBookingRequest {
+  servicer_ID: ID!
+  service_types: [ID!]!
+  date: DateTime!
+}
+input ReviewBookingRequest {
+  rating: Int!
+  comment: String
+  images: [String!]
+}
+input UpdateProfileRequest {
+  name: String
+  avatar: String
+}
+"""
+@resolver(permissions: [String!]!)
+This directive marks the field as a resolver required.
+
+If permissions is empty, it means that the field is public.
+
+Given permissions will be checked with OR logic.
+"""
+directive @resolver(permissions: [String!]!) on FIELD_DEFINITION
+"""
+@from(collection: String!)
+This directive marks the field as a document from the given collection.
+"""
+directive @from(collection: String!) on FIELD_DEFINITION
+directive @foreign_connection(collection: String!, foreignField: String!) on FIELD_DEFINITION
+directive @foreign_grouped_connection(collection: String!, foreignField: String!, groupFields: [String!]!) on FIELD_DEFINITION
+directive @from_collection(collection: String!) on FIELD_DEFINITION
+directive @paginate(collection: String!) on FIELD_DEFINITION
+directive @group_by(collection: String!, groupFields: [String!]!) on FIELD_DEFINITION
+directive @domain(domain: Domains!) on FIELD_DEFINITION
+"Exposes a URL that specifies the behavior of this scalar."
+directive @specifiedBy(
+    "The URL that specifies the behavior of this scalar."
+    url: String!
+  ) on SCALAR
+"Indicates exactly one field must be supplied and this field must not be `null`."
+directive @oneOf on INPUT_OBJECT

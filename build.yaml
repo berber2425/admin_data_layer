@@ -1,0 +1,28 @@
+# build.yaml
+
+targets:
+  $default:
+    builders:
+      graphql_codegen:
+        options:
+          clients:
+            - graphql_flutter
+          scalars:
+            DateTime:
+              import: package:api/api.dart
+              fromJsonFunctionName: dateTimeFromJson
+              toJsonFunctionName: dateTimeToJson
+              type: DateTime
+            JSON:
+              import: package:api/api.dart
+              fromJsonFunctionName: jsonFromString
+              toJsonFunctionName: jsonToString
+              type: Map<String, dynamic>
+            Email:
+              type: String
+            PhoneNumber:
+              type: String
+            Contact:
+              type: String
+            VerifyCode:
+              type: String
